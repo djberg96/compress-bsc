@@ -1,0 +1,70 @@
+AllCops:
+  TargetRubyVersion: 2.7
+  NewCops: enable
+  Exclude:
+    - 'vendor/**/*'
+    - 'tmp/**/*'
+    - 'pkg/**/*'
+
+# Prefer double quotes for consistency
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+# Allow longer lines for readability
+Layout/LineLength:
+  Max: 120
+  Exclude:
+    - 'spec/**/*'
+
+# Allow longer methods in specs
+Metrics/MethodLength:
+  Exclude:
+    - 'spec/**/*'
+    - 'examples/**/*'
+
+# Allow longer blocks in specs
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - 'examples/**/*'
+    - '*.gemspec'
+    - 'Rakefile'
+
+# Allow more complex specs
+Metrics/AbcSize:
+  Exclude:
+    - 'spec/**/*'
+    - 'examples/**/*'
+
+# Allow complex CLI parser
+Metrics/CyclomaticComplexity:
+  Exclude:
+    - 'bin/**/*'
+    - 'examples/**/*'
+
+# Allow complex CLI parser
+Metrics/PerceivedComplexity:
+  Exclude:
+    - 'bin/**/*'
+    - 'examples/**/*'
+
+# FFI modules often have many constants
+Metrics/ModuleLength:
+  Exclude:
+    - 'lib/**/library.rb'
+
+# Allow rescue with puts for CLI tools
+Style/RescueStandardError:
+  Exclude:
+    - 'Rakefile'
+    - 'bin/**/*'
+
+# Allow top-level rescue for CLI tools
+Lint/RescueException:
+  Exclude:
+    - 'bin/**/*'
+    - 'examples/**/*'
+
+# Documentation is handled separately
+Style/Documentation:
+  Enabled: false
