@@ -1,3 +1,20 @@
+# Coverage reporting setup
+if ENV['COVERAGE']
+  require 'simplecov'
+  SimpleCov.start do
+    add_filter '/spec/'
+    add_filter '/examples/'
+    add_filter '/bin/'
+    coverage_dir 'coverage'
+
+    add_group 'Library', 'lib'
+
+    # Minimum coverage thresholds
+    minimum_coverage 80
+    minimum_coverage_by_file 70
+  end
+end
+
 require_relative '../lib/compress/bsc'
 
 RSpec.configure do |config|

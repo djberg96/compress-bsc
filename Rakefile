@@ -1,5 +1,6 @@
 require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
+require 'yard'
 
 # Default RSpec task
 RSpec::Core::RakeTask.new(:spec) do |task|
@@ -23,6 +24,25 @@ RSpec::Core::RakeTask.new(:spec_ci) do |task|
 end
 
 task default: :spec
+
+# Documentation tasks
+YARD::Rake::YardocTask.new do |task|
+  task.files   = ['lib/**/*.rb']
+  task.options = ['--markup', 'markdown', '--readme', 'README.md']
+end
+
+desc "Generate documentation and open it"
+task :doc => :yard do
+  system "open doc/index.html" if RUBY_PLATFORM =~ /darwin/
+end
+
+# Code quality tasks
+begin
+  require 'rubocop/rake_task'
+  RuboCop::RakeTask.new
+rescue LoadError
+  # RuboCop not available
+end
 
 desc "Install libbsc on macOS using Homebrew"
 task :install_libbsc_mac do
