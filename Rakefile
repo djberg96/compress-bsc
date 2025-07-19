@@ -1,7 +1,26 @@
 require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
 
-RSpec::Core::RakeTask.new(:spec)
+# Default RSpec task
+RSpec::Core::RakeTask.new(:spec) do |task|
+  task.rspec_opts = ['--color', '--format', 'documentation']
+end
+
+# RSpec task with coverage
+RSpec::Core::RakeTask.new(:spec_with_coverage) do |task|
+  task.rspec_opts = ['--color', '--format', 'documentation']
+  ENV['COVERAGE'] = 'true'
+end
+
+# RSpec task with verbose output
+RSpec::Core::RakeTask.new(:spec_verbose) do |task|
+  task.rspec_opts = ['--color', '--format', 'documentation', '--backtrace']
+end
+
+# RSpec task for CI environments
+RSpec::Core::RakeTask.new(:spec_ci) do |task|
+  task.rspec_opts = ['--color', '--format', 'progress', '--format', 'RspecJunitFormatter', '--out', 'tmp/rspec.xml']
+end
 
 task default: :spec
 
