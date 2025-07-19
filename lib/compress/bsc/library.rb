@@ -8,6 +8,8 @@ module Compress
       begin
         ffi_lib 'bsc'
       rescue LoadError
+        ffi_lib '/usr/local/lib/libbsc.so'
+      rescue LoadError
         ffi_lib 'libbsc'
       end
 
