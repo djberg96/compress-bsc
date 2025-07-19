@@ -20,11 +20,15 @@ jobs:
     runs-on: ${{ matrix.platform }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true
+    - name: Install libbsc (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        brew install libbsc
     - name: Run tests
       run: bundle exec rake
