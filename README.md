@@ -53,15 +53,15 @@ gem install ffi-bsc
 require 'ffi_bsc'
 
 # Initialize the library
-Compress::BSC.init
+bsc = Compress::BSC.new
 
 # Compress data
 original = "Hello, World!" * 1000
-compressed = Compress::BSC.compress(original)
+compressed = bsc.compress(original)
 puts "Compressed #{original.length} bytes to #{compressed.length} bytes"
 
 # Decompress data
-decompressed = Compress::BSC.decompress(compressed)
+decompressed = bsc.decompress(compressed)
 puts decompressed == original # => true
 ```
 
@@ -70,7 +70,7 @@ puts decompressed == original # => true
 ```ruby
 require 'ffi_bsc'
 
-Compress::BSC.init
+bsc = Compress::BSC.new
 
 # Create a compressor with custom options
 compressor = Compress::BSC::Compressor.new(
@@ -163,7 +163,8 @@ The library provides detailed error information:
 
 ```ruby
 begin
-  compressed = Compress::BSC.compress("some data")
+  bsc = Compress::BSC.new
+  compressed = bsc.compress("some data")
 rescue Compress::BSC::Error => e
   puts "Error: #{e.error_name} (code: #{e.code})"
   puts e.message

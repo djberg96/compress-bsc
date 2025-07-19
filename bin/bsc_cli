@@ -22,7 +22,7 @@ class BSCCli
     parse_options(args)
     validate_options
 
-    Compress::BSC.init
+    @bsc = Compress::BSC.new
 
     case @options[:action]
     when :compress

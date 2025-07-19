@@ -10,7 +10,7 @@ def main
   begin
     # Initialize the BSC library
     puts "Initializing BSC library..."
-    Compress::BSC.init
+    bsc = Compress::BSC.new
     puts "✓ BSC library initialized successfully"
 
     # Test data
@@ -21,13 +21,13 @@ def main
     puts "\n1. Basic Compression Test"
     puts "-" * 30
 
-    compressed = Compress::BSC.compress(original_data)
+    compressed = bsc.compress(original_data)
     puts "Compressed size: #{compressed.bytesize} bytes"
 
     ratio = original_data.bytesize.to_f / compressed.bytesize
     puts "Compression ratio: #{ratio.round(2)}:1"
 
-    decompressed = Compress::BSC.decompress(compressed)
+    decompressed = bsc.decompress(compressed)
     puts "Decompression successful: #{original_data == decompressed}"
 
     # Advanced compression with custom settings
