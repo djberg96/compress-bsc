@@ -25,6 +25,15 @@ On Ubuntu/Debian:
 
 ```bash
 sudo apt-get install libbsc-dev
+
+# or, if not available
+
+apt-get install -y build-essential cmake
+git clone https://github.com/IlyaGrebnov/libbsc
+cd libbsc
+cmake -DBSC_BUILD_SHARED_LIB=ON .
+make
+make install
 ```
 
 Then add this line to your application's Gemfile:
