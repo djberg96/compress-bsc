@@ -2,7 +2,7 @@ require_relative 'lib/ffi_bsc/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "ffi-bsc"
-  spec.version       = FFI_BSC::VERSION
+  spec.version       = Compress::BSC::VERSION
   spec.authors       = ["Ruby Developer"]
   spec.email         = ["dev@example.com"]
 

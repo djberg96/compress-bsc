@@ -9,11 +9,11 @@ class BSCCli
       action: nil,
       input: nil,
       output: nil,
-      block_sorter: FFI_BSC::Library::LIBBSC_DEFAULT_BLOCKSORTER,
-      coder: FFI_BSC::Library::LIBBSC_DEFAULT_CODER,
+      block_sorter: Compress::BSC::Library::LIBBSC_DEFAULT_BLOCKSORTER,
+      coder: Compress::BSC::Library::LIBBSC_DEFAULT_CODER,
       lzp_hash_size: 0,
       lzp_min_len: 0,
-      features: FFI_BSC::Library::LIBBSC_DEFAULT_FEATURES,
+      features: Compress::BSC::Library::LIBBSC_DEFAULT_FEATURES,
       verbose: false
     }
   end
@@ -22,7 +22,7 @@ class BSCCli
     parse_options(args)
     validate_options
 
-    FFI_BSC.init
+    Compress::BSC.init
 
     case @options[:action]
     when :compress
@@ -35,7 +35,7 @@ class BSCCli
       puts "Error: No action specified"
       exit 1
     end
-  rescue FFI_BSC::Error => e
+  rescue Compress::BSC::Error => e
     puts "BSC Error: #{e.error_name} (#{e.code})"
     puts e.message
     exit 1
@@ -96,17 +96,17 @@ class BSCCli
 
       opts.on("--[no-]fast", "Enable fast mode") do |fast|
         if fast
-          @options[:features] |= FFI_BSC::Library::LIBBSC_FEATURE_FASTMODE
+          @options[:features] |= Compress::BSC::Library::LIBBSC_FEATURE_FASTMODE
         else
-          @options[:features] &= ~FFI_BSC::Library::LIBBSC_FEATURE_FASTMODE
+          @options[:features] &= ~Compress::BSC::Library::LIBBSC_FEATURE_FASTMODE
         end
       end
 
       opts.on("--[no-]threads", "Enable multi-threading") do |threads|
         if threads
-          @options[:features] |= FFI_BSC::Library::LIBBSC_FEATURE_MULTITHREADING
+          @options[:features] |= Compress::BSC::Library::LIBBSC_FEATURE_MULTITHREADING
         else
-          @options[:features] &= ~FFI_BSC::Library::LIBBSC_FEATURE_MULTITHREADING
+          @options[:features] &= ~Compress::BSC::Library::LIBBSC_FEATURE_MULTITHREADING
         end
       end
 
@@ -156,7 +156,7 @@ class BSCCli
   def compress_file
     puts "Compressing #{@options[:input]}..." if @options[:verbose]
 
-    compressor = FFI_BSC::Compressor.new(
+    compressor = Compress::BSC::Compressor.new(
       lzp_hash_size: @options[:lzp_hash_size],
       lzp_min_len: @options[:lzp_min_len],
       block_sorter: @options[:block_sorter],
@@ -195,9 +195,9 @@ class BSCCli
 
     # Get block info first
     compressed_data = File.binread(@options[:input])
-    info = FFI_BSC::Decompressor.block_info(compressed_data)
+    info = Compress::BSC::Decompressor.block_info(compressed_data)
 
-    decompressor = FFI_BSC::Decompressor.new(features: @options[:features])
+    decompressor = Compress::BSC::Decompressor.new(features: @options[:features])
 
     start_time = Time.now
     input_size = File.size(@options[:input])
@@ -225,7 +225,7 @@ class BSCCli
     puts "Analyzing #{@options[:input]}..."
 
     compressed_data = File.binread(@options[:input])
-    info = FFI_BSC::Decompressor.block_info(compressed_data)
+    info = Compress::BSC::Decompressor.block_info(compressed_data)
 
     file_size = File.size(@options[:input])
     ratio = info[:data_size].to_f / file_size
@@ -258,19 +258,19 @@ class BSCCli
 
   def block_sorter_name(sorter)
     case sorter
-    when FFI_BSC::Library::LIBBSC_BLOCKSORTER_BWT
+    when Compress::BSC::Library::LIBBSC_BLOCKSORTER_BWT
       "BWT"
-    when FFI_BSC::Library::LIBBSC_BLOCKSORTER_ST3
+    when Compress::BSC::Library::LIBBSC_BLOCKSORTER_ST3
       "ST3"
-    when FFI_BSC::Library::LIBBSC_BLOCKSORTER_ST4
+    when Compress::BSC::Library::LIBBSC_BLOCKSORTER_ST4
       "ST4"
-    when FFI_BSC::Library::LIBBSC_BLOCKSORTER_ST5
+    when Compress::BSC::Library::LIBBSC_BLOCKSORTER_ST5
       "ST5"
-    when FFI_BSC::Library::LIBBSC_BLOCKSORTER_ST6
+    when Compress::BSC::Library::LIBBSC_BLOCKSORTER_ST6
       "ST6"
-    when FFI_BSC::Library::LIBBSC_BLOCKSORTER_ST7
+    when Compress::BSC::Library::LIBBSC_BLOCKSORTER_ST7
       "ST7"
-    when FFI_BSC::Library::LIBBSC_BLOCKSORTER_ST8
+    when Compress::BSC::Library::LIBBSC_BLOCKSORTER_ST8
       "ST8"
     else
       "Unknown (#{sorter})"
@@ -279,11 +279,11 @@ class BSCCli
 
   def coder_name(coder)
     case coder
-    when FFI_BSC::Library::LIBBSC_CODER_QLFC_STATIC
+    when Compress::BSC::Library::LIBBSC_CODER_QLFC_STATIC
       "QLFC Static"
-    when FFI_BSC::Library::LIBBSC_CODER_QLFC_ADAPTIVE
+    when Compress::BSC::Library::LIBBSC_CODER_QLFC_ADAPTIVE
       "QLFC Adaptive"
-    when FFI_BSC::Library::LIBBSC_CODER_QLFC_FAST
+    when Compress::BSC::Library::LIBBSC_CODER_QLFC_FAST
       "QLFC Fast"
     else
       "Unknown (#{coder})"
@@ -292,10 +292,10 @@ class BSCCli
 
   def feature_names(features)
     names = []
-    names << "Fast Mode" if (features & FFI_BSC::Library::LIBBSC_FEATURE_FASTMODE) != 0
-    names << "Multi-threading" if (features & FFI_BSC::Library::LIBBSC_FEATURE_MULTITHREADING) != 0
-    names << "Large Pages" if (features & FFI_BSC::Library::LIBBSC_FEATURE_LARGEPAGES) != 0
-    names << "CUDA" if (features & FFI_BSC::Library::LIBBSC_FEATURE_CUDA) != 0
+    names << "Fast Mode" if (features & Compress::BSC::Library::LIBBSC_FEATURE_FASTMODE) != 0
+    names << "Multi-threading" if (features & Compress::BSC::Library::LIBBSC_FEATURE_MULTITHREADING) != 0
+    names << "Large Pages" if (features & Compress::BSC::Library::LIBBSC_FEATURE_LARGEPAGES) != 0
+    names << "CUDA" if (features & Compress::BSC::Library::LIBBSC_FEATURE_CUDA) != 0
     names.empty? ? ["None"] : names
   end
 end

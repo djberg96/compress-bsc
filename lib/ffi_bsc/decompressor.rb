@@ -1,8 +1,9 @@
-module FFI_BSC
-  class Decompressor
-    attr_reader :features
+module Compress
+  class BSC
+    class Decompressor
+      attr_reader :features
 
-    def initialize(options = {})
+      def initialize(options = {})
       @features = options[:features] || Library::LIBBSC_DEFAULT_FEATURES
     end
 
@@ -152,6 +153,7 @@ module FFI_BSC
         block_size_ptr.free if block_size_ptr
         data_size_ptr.free if data_size_ptr
       end
+    end
     end
   end
 end

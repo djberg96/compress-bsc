@@ -24,8 +24,8 @@ RSpec.configure do |config|
   # Initialize BSC library before running tests
   config.before(:suite) do
     begin
-      FFI_BSC.init
-    rescue FFI_BSC::Error => e
+      Compress::BSC.init
+    rescue Compress::BSC::Error => e
       warn "Warning: Could not initialize BSC library: #{e.message}"
       warn "Some tests may fail. Please ensure libbsc is installed."
     rescue LoadError => e

@@ -1,8 +1,9 @@
-module FFI_BSC
-  class Compressor
-    attr_reader :lzp_hash_size, :lzp_min_len, :block_sorter, :coder, :features
+module Compress
+  class BSC
+    class Compressor
+      attr_reader :lzp_hash_size, :lzp_min_len, :block_sorter, :coder, :features
 
-    def initialize(options = {})
+      def initialize(options = {})
       @lzp_hash_size = options[:lzp_hash_size] || 0  # Disable LZP by default
       @lzp_min_len = options[:lzp_min_len] || 0      # Disable LZP by default
       @block_sorter = options[:block_sorter] || Library::LIBBSC_DEFAULT_BLOCKSORTER
@@ -74,6 +75,7 @@ module FFI_BSC
       compressed_data = compress(input_data)
       File.binwrite(output_path, compressed_data)
       compressed_data.bytesize
+    end
     end
   end
 end

@@ -1,12 +1,13 @@
 require 'ffi'
 
-module FFI_BSC
-  module Library
-    extend FFI::Library
+module Compress
+  class BSC
+    module Library
+      extend FFI::Library
 
-    # Try to find the libbsc library in common locations
-    library_names = %w[libbsc bsc]
-    library_paths = %w[
+      # Try to find the libbsc library in common locations
+      library_names = %w[libbsc bsc]
+      library_paths = %w[
       /usr/local/lib
       /usr/lib
       /opt/homebrew/lib
@@ -116,5 +117,6 @@ module FFI_BSC
     def self.error_name(code)
       ERROR_NAMES[code] || "UNKNOWN_ERROR(#{code})"
     end
+  end
   end
 end

@@ -53,15 +53,15 @@ gem install ffi-bsc
 require 'ffi_bsc'
 
 # Initialize the library
-FFI_BSC.init
+Compress::BSC.init
 
 # Compress data
 original = "Hello, World!" * 1000
-compressed = FFI_BSC.compress(original)
+compressed = Compress::BSC.compress(original)
 puts "Compressed #{original.length} bytes to #{compressed.length} bytes"
 
 # Decompress data
-decompressed = FFI_BSC.decompress(compressed)
+decompressed = Compress::BSC.decompress(compressed)
 puts decompressed == original # => true
 ```
 
@@ -70,14 +70,14 @@ puts decompressed == original # => true
 ```ruby
 require 'ffi_bsc'
 
-FFI_BSC.init
+Compress::BSC.init
 
 # Create a compressor with custom options
-compressor = FFI_BSC::Compressor.new(
+compressor = Compress::BSC::Compressor.new(
   lzp_hash_size: 16,     # Enable LZP with 64KB hash table
   lzp_min_len: 128,      # Minimum LZP match length
-  block_sorter: FFI_BSC::Library::LIBBSC_BLOCKSORTER_ST4,
-  features: FFI_BSC::Library::LIBBSC_FEATURE_MULTITHREADING
+  block_sorter: Compress::BSC::Library::LIBBSC_BLOCKSORTER_ST4,
+  features: Compress::BSC::Library::LIBBSC_FEATURE_MULTITHREADING
 )
 
 # Compress data
@@ -92,7 +92,7 @@ compressor.compress_file("input.txt", "output.bsc")
 
 ```ruby
 # Create a decompressor
-decompressor = FFI_BSC::Decompressor.new
+decompressor = Compress::BSC::Decompressor.new
 
 # Decompress data
 decompressed = decompressor.decompress(compressed)
@@ -101,7 +101,7 @@ decompressed = decompressor.decompress(compressed)
 decompressor.decompress_file("output.bsc", "restored.txt")
 
 # Get information about compressed data
-info = FFI_BSC::Decompressor.block_info(compressed)
+info = Compress::BSC::Decompressor.block_info(compressed)
 puts "Original size: #{info[:data_size]} bytes"
 puts "Block size: #{info[:block_size]} bytes"
 ```
@@ -163,8 +163,8 @@ The library provides detailed error information:
 
 ```ruby
 begin
-  compressed = FFI_BSC.compress("some data")
-rescue FFI_BSC::Error => e
+  compressed = Compress::BSC.compress("some data")
+rescue Compress::BSC::Error => e
   puts "Error: #{e.error_name} (code: #{e.code})"
   puts e.message
 end

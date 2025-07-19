@@ -1,24 +1,24 @@
 require 'spec_helper'
 
-RSpec.describe FFI_BSC::Decompressor do
+RSpec.describe Compress::BSC::Decompressor do
   let(:test_data) { "Hello, World! This is a test for BSC decompression." * 50 }
-  let(:compressor) { FFI_BSC::Compressor.new }
+  let(:compressor) { Compress::BSC::Compressor.new }
   let(:compressed_data) { compressor.compress(test_data) }
 
   describe '#initialize' do
     it 'creates a decompressor with default options' do
-      decompressor = FFI_BSC::Decompressor.new
-      expect(decompressor.features).to eq(FFI_BSC::Library::LIBBSC_DEFAULT_FEATURES)
+      decompressor = Compress::BSC::Decompressor.new
+      expect(decompressor.features).to eq(Compress::BSC::Library::LIBBSC_DEFAULT_FEATURES)
     end
 
     it 'creates a decompressor with custom options' do
-      decompressor = FFI_BSC::Decompressor.new(features: FFI_BSC::Library::LIBBSC_FEATURE_FASTMODE)
-      expect(decompressor.features).to eq(FFI_BSC::Library::LIBBSC_FEATURE_FASTMODE)
+      decompressor = Compress::BSC::Decompressor.new(features: Compress::BSC::Library::LIBBSC_FEATURE_FASTMODE)
+      expect(decompressor.features).to eq(Compress::BSC::Library::LIBBSC_FEATURE_FASTMODE)
     end
   end
 
   describe '#decompress' do
-    let(:decompressor) { FFI_BSC::Decompressor.new }
+    let(:decompressor) { Compress::BSC::Decompressor.new }
 
     it 'decompresses data successfully' do
       result = decompressor.decompress(compressed_data)
@@ -39,20 +39,20 @@ RSpec.describe FFI_BSC::Decompressor do
     end
 
     it 'raises error for data too small to contain header' do
-      small_data = "x" * (FFI_BSC::Library::LIBBSC_HEADER_SIZE - 1)
-      expect { decompressor.decompress(small_data) }.to raise_error(FFI_BSC::Error)
+      small_data = "x" * (Compress::BSC::Library::LIBBSC_HEADER_SIZE - 1)
+      expect { decompressor.decompress(small_data) }.to raise_error(Compress::BSC::Error)
     end
 
     it 'raises error for corrupted data' do
-      corrupted_data = "corrupted" + "\x00" * (FFI_BSC::Library::LIBBSC_HEADER_SIZE - 9)
-      expect { decompressor.decompress(corrupted_data) }.to raise_error(FFI_BSC::Error)
+      corrupted_data = "corrupted" + "\x00" * (Compress::BSC::Library::LIBBSC_HEADER_SIZE - 9)
+      expect { decompressor.decompress(corrupted_data) }.to raise_error(Compress::BSC::Error)
     end
 
     context 'with different compression settings' do
       it 'decompresses data compressed with LZP' do
-        lzp_compressor = FFI_BSC::Compressor.new(
-          lzp_hash_size: FFI_BSC::Library::LIBBSC_DEFAULT_LZPHASHSIZE,
-          lzp_min_len: FFI_BSC::Library::LIBBSC_DEFAULT_LZPMINLEN
+        lzp_compressor = Compress::BSC::Compressor.new(
+          lzp_hash_size: Compress::BSC::Library::LIBBSC_DEFAULT_LZPHASHSIZE,
+          lzp_min_len: Compress::BSC::Library::LIBBSC_DEFAULT_LZPMINLEN
         )
 
         lzp_compressed = lzp_compressor.compress(test_data)
@@ -62,11 +62,11 @@ RSpec.describe FFI_BSC::Decompressor do
 
       it 'decompresses data compressed with different block sorters' do
         [
-          FFI_BSC::Library::LIBBSC_BLOCKSORTER_BWT,
-          FFI_BSC::Library::LIBBSC_BLOCKSORTER_ST3,
-          FFI_BSC::Library::LIBBSC_BLOCKSORTER_ST4
+          Compress::BSC::Library::LIBBSC_BLOCKSORTER_BWT,
+          Compress::BSC::Library::LIBBSC_BLOCKSORTER_ST3,
+          Compress::BSC::Library::LIBBSC_BLOCKSORTER_ST4
         ].each do |sorter|
-          sorter_compressor = FFI_BSC::Compressor.new(block_sorter: sorter)
+          sorter_compressor = Compress::BSC::Compressor.new(block_sorter: sorter)
           sorter_compressed = sorter_compressor.compress(test_data)
           result = decompressor.decompress(sorter_compressed)
           expect(result).to eq(test_data)
@@ -75,11 +75,11 @@ RSpec.describe FFI_BSC::Decompressor do
 
       it 'decompresses data compressed with different coders' do
         [
-          FFI_BSC::Library::LIBBSC_CODER_QLFC_STATIC,
-          FFI_BSC::Library::LIBBSC_CODER_QLFC_ADAPTIVE,
-          FFI_BSC::Library::LIBBSC_CODER_QLFC_FAST
+          Compress::BSC::Library::LIBBSC_CODER_QLFC_STATIC,
+          Compress::BSC::Library::LIBBSC_CODER_QLFC_ADAPTIVE,
+          Compress::BSC::Library::LIBBSC_CODER_QLFC_FAST
         ].each do |coder|
-          coder_compressor = FFI_BSC::Compressor.new(coder: coder)
+          coder_compressor = Compress::BSC::Compressor.new(coder: coder)
           coder_compressed = coder_compressor.compress(test_data)
           result = decompressor.decompress(coder_compressed)
           expect(result).to eq(test_data)
@@ -89,7 +89,7 @@ RSpec.describe FFI_BSC::Decompressor do
   end
 
   describe '#decompress_file' do
-    let(:decompressor) { FFI_BSC::Decompressor.new }
+    let(:decompressor) { Compress::BSC::Decompressor.new }
     let(:input_file) { 'spec/test_compressed.bsc' }
     let(:output_file) { 'spec/test_decompressed.txt' }
 
@@ -112,7 +112,7 @@ RSpec.describe FFI_BSC::Decompressor do
 
   describe '.block_info' do
     it 'returns correct block information' do
-      info = FFI_BSC::Decompressor.block_info(compressed_data)
+      info = Compress::BSC::Decompressor.block_info(compressed_data)
 
       expect(info).to be_a(Hash)
       expect(info[:block_size]).to be > 0
@@ -120,16 +120,16 @@ RSpec.describe FFI_BSC::Decompressor do
     end
 
     it 'raises error for nil input' do
-      expect { FFI_BSC::Decompressor.block_info(nil) }.to raise_error(ArgumentError)
+      expect { Compress::BSC::Decompressor.block_info(nil) }.to raise_error(ArgumentError)
     end
 
     it 'raises error for non-string input' do
-      expect { FFI_BSC::Decompressor.block_info(123) }.to raise_error(ArgumentError)
+      expect { Compress::BSC::Decompressor.block_info(123) }.to raise_error(ArgumentError)
     end
 
     it 'raises error for data too small' do
-      small_data = "x" * (FFI_BSC::Library::LIBBSC_HEADER_SIZE - 1)
-      expect { FFI_BSC::Decompressor.block_info(small_data) }.to raise_error(FFI_BSC::Error)
+      small_data = "x" * (Compress::BSC::Library::LIBBSC_HEADER_SIZE - 1)
+      expect { Compress::BSC::Decompressor.block_info(small_data) }.to raise_error(Compress::BSC::Error)
     end
   end
 end

@@ -10,7 +10,7 @@ def main
   begin
     # Initialize the BSC library
     puts "Initializing BSC library..."
-    FFI_BSC.init
+    Compress::BSC.init
     puts "✓ BSC library initialized successfully"
 
     # Test data
@@ -21,24 +21,24 @@ def main
     puts "\n1. Basic Compression Test"
     puts "-" * 30
 
-    compressed = FFI_BSC.compress(original_data)
+    compressed = Compress::BSC.compress(original_data)
     puts "Compressed size: #{compressed.bytesize} bytes"
 
     ratio = original_data.bytesize.to_f / compressed.bytesize
     puts "Compression ratio: #{ratio.round(2)}:1"
 
-    decompressed = FFI_BSC.decompress(compressed)
+    decompressed = Compress::BSC.decompress(compressed)
     puts "Decompression successful: #{original_data == decompressed}"
 
     # Advanced compression with custom settings
     puts "\n2. Advanced Compression Test"
     puts "-" * 30
 
-    compressor = FFI_BSC::Compressor.new(
-      block_sorter: FFI_BSC::Library::LIBBSC_BLOCKSORTER_BWT,
-      coder: FFI_BSC::Library::LIBBSC_CODER_QLFC_ADAPTIVE,
-      features: FFI_BSC::Library::LIBBSC_FEATURE_FASTMODE |
-                FFI_BSC::Library::LIBBSC_FEATURE_MULTITHREADING
+    compressor = Compress::BSC::Compressor.new(
+      block_sorter: Compress::BSC::Library::LIBBSC_BLOCKSORTER_BWT,
+      coder: Compress::BSC::Library::LIBBSC_CODER_QLFC_ADAPTIVE,
+      features: Compress::BSC::Library::LIBBSC_FEATURE_FASTMODE |
+                Compress::BSC::Library::LIBBSC_FEATURE_MULTITHREADING
     )
 
     compressed_advanced = compressor.compress(original_data)
@@ -47,7 +47,7 @@ def main
     ratio_advanced = original_data.bytesize.to_f / compressed_advanced.bytesize
     puts "Advanced compression ratio: #{ratio_advanced.round(2)}:1"
 
-    decompressor = FFI_BSC::Decompressor.new
+    decompressor = Compress::BSC::Decompressor.new
     decompressed_advanced = decompressor.decompress(compressed_advanced)
     puts "Advanced decompression successful: #{original_data == decompressed_advanced}"
 
@@ -55,11 +55,11 @@ def main
     puts "\n3. LZP Preprocessing Test"
     puts "-" * 30
 
-    lzp_compressor = FFI_BSC::Compressor.new(
-      lzp_hash_size: FFI_BSC::Library::LIBBSC_DEFAULT_LZPHASHSIZE,
-      lzp_min_len: FFI_BSC::Library::LIBBSC_DEFAULT_LZPMINLEN,
-      block_sorter: FFI_BSC::Library::LIBBSC_BLOCKSORTER_BWT,
-      coder: FFI_BSC::Library::LIBBSC_CODER_QLFC_STATIC
+    lzp_compressor = Compress::BSC::Compressor.new(
+      lzp_hash_size: Compress::BSC::Library::LIBBSC_DEFAULT_LZPHASHSIZE,
+      lzp_min_len: Compress::BSC::Library::LIBBSC_DEFAULT_LZPMINLEN,
+      block_sorter: Compress::BSC::Library::LIBBSC_BLOCKSORTER_BWT,
+      coder: Compress::BSC::Library::LIBBSC_CODER_QLFC_STATIC
     )
 
     compressed_lzp = lzp_compressor.compress(original_data)
@@ -75,7 +75,7 @@ def main
     puts "\n4. Block Information Test"
     puts "-" * 30
 
-    info = FFI_BSC::Decompressor.block_info(compressed)
+    info = Compress::BSC::Decompressor.block_info(compressed)
     puts "Block size: #{info[:block_size]} bytes"
     puts "Data size: #{info[:data_size]} bytes"
     puts "Header overhead: #{info[:block_size] - info[:data_size]} bytes"
@@ -94,7 +94,7 @@ def main
 
     puts "\n✓ All tests completed successfully!"
 
-  rescue FFI_BSC::Error => e
+  rescue Compress::BSC::Error => e
     puts "❌ BSC Error: #{e.error_name} (#{e.code})"
     puts e.message
   rescue LoadError => e
@@ -127,12 +127,12 @@ def test_file_compression
     File.binwrite(input_file, test_content)
 
     # Compress file
-    compressor = FFI_BSC::Compressor.new
+    compressor = Compress::BSC::Compressor.new
     compressed_size = compressor.compress_file(input_file, compressed_file)
     puts "File compressed: #{File.size(input_file)} → #{compressed_size} bytes"
 
     # Decompress file
-    decompressor = FFI_BSC::Decompressor.new
+    decompressor = Compress::BSC::Decompressor.new
     decompressed_size = decompressor.decompress_file(compressed_file, decompressed_file)
     puts "File decompressed: #{compressed_size} → #{decompressed_size} bytes"
 
@@ -161,26 +161,26 @@ def performance_test(data)
     compressed_lzp = nil
 
     x.report("Basic compression:") do
-      compressor = FFI_BSC::Compressor.new
+      compressor = Compress::BSC::Compressor.new
       compressed_basic = compressor.compress(data)
     end
 
     x.report("Adaptive coder:") do
-      compressor = FFI_BSC::Compressor.new(
-        coder: FFI_BSC::Library::LIBBSC_CODER_QLFC_ADAPTIVE
+      compressor = Compress::BSC::Compressor.new(
+        coder: Compress::BSC::Library::LIBBSC_CODER_QLFC_ADAPTIVE
       )
       compressed_adaptive = compressor.compress(data)
     end
 
     x.report("Fast coder:") do
-      compressor = FFI_BSC::Compressor.new(
-        coder: FFI_BSC::Library::LIBBSC_CODER_QLFC_FAST
+      compressor = Compress::BSC::Compressor.new(
+        coder: Compress::BSC::Library::LIBBSC_CODER_QLFC_FAST
       )
       compressed_fast = compressor.compress(data)
     end
 
     x.report("With LZP:") do
-      compressor = FFI_BSC::Compressor.new(
+      compressor = Compress::BSC::Compressor.new(
         lzp_hash_size: 15,
         lzp_min_len: 128
       )
