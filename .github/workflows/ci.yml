@@ -58,33 +58,6 @@ jobs:
         diff test_input.txt test_restored.txt
         rm -f test_input.txt test_output.bsc test_restored.txt
 
-  lint:
-    runs-on: ubuntu-latest
-    name: Linting
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.4'
-        bundler-cache: true
-
-    - name: Install libbsc
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libbsc-dev
-
-    - name: Run RuboCop (if available)
-      run: |
-        if bundle list | grep -q rubocop; then
-          bundle exec rubocop
-        else
-          echo "RuboCop not found in Gemfile, skipping..."
-        fi
-      continue-on-error: true
-
   coverage:
     runs-on: ubuntu-latest
     name: Coverage
