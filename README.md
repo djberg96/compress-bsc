@@ -261,3 +261,10 @@ This gem is available as open source under the terms of the [Apache License 2.0]
 
 - [libbsc](https://github.com/IlyaGrebnov/libbsc) by Ilya Grebnov - The underlying compression library
 - This Ruby wrapper provides an idiomatic interface to the excellent libbsc library
+
+## Copyright
+(C) 2025, Daniel J. Berger
+All Rights Reserved
+
+## Author
+Daniel J. Berger
