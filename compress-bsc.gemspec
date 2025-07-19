@@ -1,4 +1,4 @@
-require_relative 'lib/compress_bsc/version'
+require_relative 'lib/compress/bsc/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "compress-bsc"

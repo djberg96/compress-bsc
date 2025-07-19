@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require_relative '../lib/compress_bsc'
+require_relative '../lib/compress/bsc'
 
 # Example usage of compress-bsc
 def main

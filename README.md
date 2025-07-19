@@ -50,7 +50,10 @@ gem install compress-bsc
 ### Simple API
 
 ```ruby
-require 'compress_bsc'
+# You can require the library in either of these ways:
+require 'compress/bsc'
+# or
+require 'compress-bsc'
 
 # Initialize the library
 bsc = Compress::BSC.new
@@ -68,7 +71,7 @@ puts decompressed == original # => true
 ### Object-Oriented API
 
 ```ruby
-require 'compress_bsc'
+require 'compress/bsc'
 
 bsc = Compress::BSC.new
 

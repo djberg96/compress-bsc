@@ -45,7 +45,7 @@ end
 desc "Check if libbsc is available"
 task :check_libbsc do
   begin
-    require_relative 'lib/compress_bsc'
+    require_relative 'lib/compress/bsc'
     Compress::BSC::Library # Try to load the library
     puts "✓ libbsc library found and loaded successfully"
   rescue LoadError => e
