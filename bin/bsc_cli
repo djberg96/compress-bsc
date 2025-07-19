@@ -1,0 +1,306 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/ffi_bsc'
+require 'optparse'
+
+class BSCCli
+  def initialize
+    @options = {
+      action: nil,
+      input: nil,
+      output: nil,
+      block_sorter: FFI_BSC::Library::LIBBSC_DEFAULT_BLOCKSORTER,
+      coder: FFI_BSC::Library::LIBBSC_DEFAULT_CODER,
+      lzp_hash_size: 0,
+      lzp_min_len: 0,
+      features: FFI_BSC::Library::LIBBSC_DEFAULT_FEATURES,
+      verbose: false
+    }
+  end
+
+  def run(args)
+    parse_options(args)
+    validate_options
+
+    FFI_BSC.init
+
+    case @options[:action]
+    when :compress
+      compress_file
+    when :decompress
+      decompress_file
+    when :info
+      show_info
+    else
+      puts "Error: No action specified"
+      exit 1
+    end
+  rescue FFI_BSC::Error => e
+    puts "BSC Error: #{e.error_name} (#{e.code})"
+    puts e.message
+    exit 1
+  rescue => e
+    puts "Error: #{e.message}"
+    exit 1
+  end
+
+  private
+
+  def parse_options(args)
+    OptionParser.new do |opts|
+      opts.banner = "Usage: #{$0} [options]"
+      opts.separator ""
+      opts.separator "Actions:"
+
+      opts.on("-c", "--compress", "Compress input file") do
+        @options[:action] = :compress
+      end
+
+      opts.on("-d", "--decompress", "Decompress input file") do
+        @options[:action] = :decompress
+      end
+
+      opts.on("-i", "--info", "Show information about compressed file") do
+        @options[:action] = :info
+      end
+
+      opts.separator ""
+      opts.separator "Files:"
+
+      opts.on("-f", "--input FILE", "Input file") do |file|
+        @options[:input] = file
+      end
+
+      opts.on("-o", "--output FILE", "Output file") do |file|
+        @options[:output] = file
+      end
+
+      opts.separator ""
+      opts.separator "Compression options:"
+
+      opts.on("-b", "--block-sorter SORTER", Integer, "Block sorter (0=BWT, 3-8=ST)") do |sorter|
+        @options[:block_sorter] = sorter
+      end
+
+      opts.on("--coder CODER", Integer, "Coder (1=Static, 2=Adaptive, 3=Fast)") do |coder|
+        @options[:coder] = coder
+      end
+
+      opts.on("--lzp-hash SIZE", Integer, "LZP hash size (10-28, 0=disable)") do |size|
+        @options[:lzp_hash_size] = size
+      end
+
+      opts.on("--lzp-min LEN", Integer, "LZP minimum length (4-255, 0=disable)") do |len|
+        @options[:lzp_min_len] = len
+      end
+
+      opts.on("--[no-]fast", "Enable fast mode") do |fast|
+        if fast
+          @options[:features] |= FFI_BSC::Library::LIBBSC_FEATURE_FASTMODE
+        else
+          @options[:features] &= ~FFI_BSC::Library::LIBBSC_FEATURE_FASTMODE
+        end
+      end
+
+      opts.on("--[no-]threads", "Enable multi-threading") do |threads|
+        if threads
+          @options[:features] |= FFI_BSC::Library::LIBBSC_FEATURE_MULTITHREADING
+        else
+          @options[:features] &= ~FFI_BSC::Library::LIBBSC_FEATURE_MULTITHREADING
+        end
+      end
+
+      opts.separator ""
+      opts.separator "Other options:"
+
+      opts.on("-v", "--verbose", "Verbose output") do
+        @options[:verbose] = true
+      end
+
+      opts.on("-h", "--help", "Show this help") do
+        puts opts
+        exit
+      end
+
+      opts.separator ""
+      opts.separator "Examples:"
+      opts.separator "  #{$0} -c -f input.txt -o output.bsc"
+      opts.separator "  #{$0} -d -f output.bsc -o restored.txt"
+      opts.separator "  #{$0} -i -f output.bsc"
+      opts.separator "  #{$0} -c -f large.txt -o large.bsc --lzp-hash 16 --lzp-min 64"
+    end.parse!(args)
+  end
+
+  def validate_options
+    unless @options[:action]
+      puts "Error: Must specify an action (-c, -d, or -i)"
+      exit 1
+    end
+
+    unless @options[:input]
+      puts "Error: Must specify input file (-f)"
+      exit 1
+    end
+
+    unless File.exist?(@options[:input])
+      puts "Error: Input file '#{@options[:input]}' does not exist"
+      exit 1
+    end
+
+    if @options[:action] != :info && !@options[:output]
+      puts "Error: Must specify output file (-o) for compress/decompress actions"
+      exit 1
+    end
+  end
+
+  def compress_file
+    puts "Compressing #{@options[:input]}..." if @options[:verbose]
+
+    compressor = FFI_BSC::Compressor.new(
+      lzp_hash_size: @options[:lzp_hash_size],
+      lzp_min_len: @options[:lzp_min_len],
+      block_sorter: @options[:block_sorter],
+      coder: @options[:coder],
+      features: @options[:features]
+    )
+
+    start_time = Time.now
+    input_size = File.size(@options[:input])
+
+    compressed_size = compressor.compress_file(@options[:input], @options[:output])
+
+    end_time = Time.now
+    duration = end_time - start_time
+
+    ratio = input_size.to_f / compressed_size
+    speed = input_size / duration / 1024 / 1024 # MB/s
+
+    puts "Compression completed:"
+    puts "  Input size:  #{format_bytes(input_size)}"
+    puts "  Output size: #{format_bytes(compressed_size)}"
+    puts "  Ratio:       #{ratio.round(2)}:1 (#{((1 - compressed_size.to_f / input_size) * 100).round(1)}% savings)"
+    puts "  Time:        #{duration.round(2)}s"
+    puts "  Speed:       #{speed.round(2)} MB/s"
+
+    if @options[:verbose]
+      puts "  Block sorter: #{block_sorter_name(@options[:block_sorter])}"
+      puts "  Coder:        #{coder_name(@options[:coder])}"
+      puts "  LZP:          #{@options[:lzp_hash_size] > 0 ? "enabled (#{@options[:lzp_hash_size]}/#{@options[:lzp_min_len]})" : "disabled"}"
+      puts "  Features:     #{feature_names(@options[:features]).join(', ')}"
+    end
+  end
+
+  def decompress_file
+    puts "Decompressing #{@options[:input]}..." if @options[:verbose]
+
+    # Get block info first
+    compressed_data = File.binread(@options[:input])
+    info = FFI_BSC::Decompressor.block_info(compressed_data)
+
+    decompressor = FFI_BSC::Decompressor.new(features: @options[:features])
+
+    start_time = Time.now
+    input_size = File.size(@options[:input])
+
+    decompressed_size = decompressor.decompress_file(@options[:input], @options[:output])
+
+    end_time = Time.now
+    duration = end_time - start_time
+
+    speed = decompressed_size / duration / 1024 / 1024 # MB/s
+
+    puts "Decompression completed:"
+    puts "  Input size:  #{format_bytes(input_size)}"
+    puts "  Output size: #{format_bytes(decompressed_size)}"
+    puts "  Time:        #{duration.round(2)}s"
+    puts "  Speed:       #{speed.round(2)} MB/s"
+
+    if @options[:verbose]
+      puts "  Block size:  #{format_bytes(info[:block_size])}"
+      puts "  Data size:   #{format_bytes(info[:data_size])}"
+    end
+  end
+
+  def show_info
+    puts "Analyzing #{@options[:input]}..."
+
+    compressed_data = File.binread(@options[:input])
+    info = FFI_BSC::Decompressor.block_info(compressed_data)
+
+    file_size = File.size(@options[:input])
+    ratio = info[:data_size].to_f / file_size
+
+    puts "File information:"
+    puts "  File size:       #{format_bytes(file_size)}"
+    puts "  Block size:      #{format_bytes(info[:block_size])}"
+    puts "  Original size:   #{format_bytes(info[:data_size])}"
+    puts "  Compression ratio: #{ratio.round(2)}:1"
+    puts "  Space savings:   #{((1 - file_size.to_f / info[:data_size]) * 100).round(1)}%"
+    puts "  Header overhead: #{format_bytes(info[:block_size] - info[:data_size])}"
+  end
+
+  def format_bytes(bytes)
+    units = %w[B KB MB GB TB]
+    size = bytes.to_f
+    unit_index = 0
+
+    while size >= 1024 && unit_index < units.length - 1
+      size /= 1024
+      unit_index += 1
+    end
+
+    if size == size.to_i
+      "#{size.to_i} #{units[unit_index]}"
+    else
+      "#{size.round(1)} #{units[unit_index]}"
+    end
+  end
+
+  def block_sorter_name(sorter)
+    case sorter
+    when FFI_BSC::Library::LIBBSC_BLOCKSORTER_BWT
+      "BWT"
+    when FFI_BSC::Library::LIBBSC_BLOCKSORTER_ST3
+      "ST3"
+    when FFI_BSC::Library::LIBBSC_BLOCKSORTER_ST4
+      "ST4"
+    when FFI_BSC::Library::LIBBSC_BLOCKSORTER_ST5
+      "ST5"
+    when FFI_BSC::Library::LIBBSC_BLOCKSORTER_ST6
+      "ST6"
+    when FFI_BSC::Library::LIBBSC_BLOCKSORTER_ST7
+      "ST7"
+    when FFI_BSC::Library::LIBBSC_BLOCKSORTER_ST8
+      "ST8"
+    else
+      "Unknown (#{sorter})"
+    end
+  end
+
+  def coder_name(coder)
+    case coder
+    when FFI_BSC::Library::LIBBSC_CODER_QLFC_STATIC
+      "QLFC Static"
+    when FFI_BSC::Library::LIBBSC_CODER_QLFC_ADAPTIVE
+      "QLFC Adaptive"
+    when FFI_BSC::Library::LIBBSC_CODER_QLFC_FAST
+      "QLFC Fast"
+    else
+      "Unknown (#{coder})"
+    end
+  end
+
+  def feature_names(features)
+    names = []
+    names << "Fast Mode" if (features & FFI_BSC::Library::LIBBSC_FEATURE_FASTMODE) != 0
+    names << "Multi-threading" if (features & FFI_BSC::Library::LIBBSC_FEATURE_MULTITHREADING) != 0
+    names << "Large Pages" if (features & FFI_BSC::Library::LIBBSC_FEATURE_LARGEPAGES) != 0
+    names << "CUDA" if (features & FFI_BSC::Library::LIBBSC_FEATURE_CUDA) != 0
+    names.empty? ? ["None"] : names
+  end
+end
+
+if __FILE__ == $0
+  cli = BSCCli.new
+  cli.run(ARGV)
+end
