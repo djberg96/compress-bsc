@@ -115,19 +115,19 @@ The gem includes a command-line tool for compression and decompression:
 
 ```bash
 # Compress a file
-bsc_cli -c -f input.txt -o output.bsc
+rbsc -c -f input.txt -o output.bsc
 
 # Decompress a file
-bsc_cli -d -f output.bsc -o restored.txt
+rbsc -d -f output.bsc -o restored.txt
 
 # Show information about a compressed file
-bsc_cli -i -f output.bsc
+rbsc -i -f output.bsc
 
 # Advanced compression with LZP preprocessing
-bsc_cli -c -f large.txt -o large.bsc --lzp-hash 16 --lzp-min 64 --threads
+rbsc -c -f large.txt -o large.bsc --lzp-hash 16 --lzp-min 64 --threads
 
 # Show help
-bsc_cli --help
+rbsc --help
 ```
 
 ### Advanced Options

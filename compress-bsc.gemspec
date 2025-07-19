@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
 
   spec.files         = Dir["lib/**/*", "bin/**/*", "examples/**/*", "spec/**/*", "README.md", "LICENSE", "Gemfile", "Rakefile", "compress-bsc.gemspec", "CHANGELOG.md"]
   spec.bindir        = "bin"
-  spec.executables   = ["bsc_cli"]
+  spec.executables   = ["rbsc"]
   spec.require_paths = ["lib"]
 
   spec.required_ruby_version = ">= 2.7.0"
