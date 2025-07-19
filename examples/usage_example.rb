@@ -13,6 +13,20 @@ def main
     bsc = Compress::BSC.new
     puts "✓ BSC library initialized successfully"
 
+    # Initialize with custom features
+    puts "\nInitializing BSC library with custom features..."
+    bsc_custom = Compress::BSC.new(features: Compress::BSC::Library::LIBBSC_FEATURE_FASTMODE)
+    puts "✓ BSC library with custom features initialized successfully"
+
+    # Initialize with multiple features
+    puts "\nInitializing BSC library with multiple features..."
+    bsc_multi = Compress::BSC.new(
+      features: Compress::BSC::Library::LIBBSC_FEATURE_FASTMODE |
+                Compress::BSC::Library::LIBBSC_FEATURE_MULTITHREADING |
+                Compress::BSC::Library::LIBBSC_FEATURE_LARGEPAGES
+    )
+    puts "✓ BSC library with multiple features initialized successfully"
+
     # Test data
     original_data = generate_test_data
     puts "\nOriginal data size: #{original_data.bytesize} bytes"

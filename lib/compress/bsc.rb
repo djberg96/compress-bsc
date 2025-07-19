@@ -7,9 +7,9 @@ require_relative 'bsc/error'
 
 module Compress
   class BSC
-    # Initialize the BSC library with default features
-    def initialize
-      result = Library.bsc_init(Library::LIBBSC_DEFAULT_FEATURES)
+    # Initialize the BSC library with configurable features
+    def initialize(features: Library::LIBBSC_DEFAULT_FEATURES)
+      result = Library.bsc_init(features)
       raise Error.new(result) unless result == Library::LIBBSC_NO_ERROR
     end
 

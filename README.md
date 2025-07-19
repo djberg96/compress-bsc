@@ -55,8 +55,18 @@ require 'compress/bsc'
 # or
 require 'compress-bsc'
 
-# Initialize the library
+# Initialize the library with default features (fast mode + multithreading)
 bsc = Compress::BSC.new
+
+# Initialize with custom features
+bsc_fast = Compress::BSC.new(features: Compress::BSC::Library::LIBBSC_FEATURE_FASTMODE)
+
+# Initialize with multiple features
+bsc_custom = Compress::BSC.new(
+  features: Compress::BSC::Library::LIBBSC_FEATURE_FASTMODE |
+            Compress::BSC::Library::LIBBSC_FEATURE_MULTITHREADING |
+            Compress::BSC::Library::LIBBSC_FEATURE_LARGEPAGES
+)
 
 # Compress data
 original = "Hello, World!" * 1000
@@ -66,6 +76,30 @@ puts "Compressed #{original.length} bytes to #{compressed.length} bytes"
 # Decompress data
 decompressed = bsc.decompress(compressed)
 puts decompressed == original # => true
+```
+
+### Available Features
+
+The BSC library can be initialized with different feature combinations:
+
+- `LIBBSC_FEATURE_NONE` - No special features
+- `LIBBSC_FEATURE_FASTMODE` - Enable fast mode for faster compression/decompression
+- `LIBBSC_FEATURE_MULTITHREADING` - Enable multi-threading support
+- `LIBBSC_FEATURE_LARGEPAGES` - Enable large pages for better memory performance
+- `LIBBSC_FEATURE_CUDA` - Enable CUDA GPU acceleration (if available)
+
+The default is `LIBBSC_FEATURE_FASTMODE | LIBBSC_FEATURE_MULTITHREADING`.
+
+```ruby
+# Examples of different feature combinations:
+bsc_minimal = Compress::BSC.new(features: Compress::BSC::Library::LIBBSC_FEATURE_NONE)
+bsc_gpu = Compress::BSC.new(features: Compress::BSC::Library::LIBBSC_FEATURE_CUDA)
+bsc_all = Compress::BSC.new(
+  features: Compress::BSC::Library::LIBBSC_FEATURE_FASTMODE |
+            Compress::BSC::Library::LIBBSC_FEATURE_MULTITHREADING |
+            Compress::BSC::Library::LIBBSC_FEATURE_LARGEPAGES |
+            Compress::BSC::Library::LIBBSC_FEATURE_CUDA
+)
 ```
 
 ### Object-Oriented API
