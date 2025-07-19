@@ -1,4 +1,4 @@
-# FFI-BSC
+# compress-bsc
 
 A Ruby interface to the [libbsc](https://github.com/IlyaGrebnov/libbsc) high-performance block-sorting compression library using FFI.
 
@@ -30,7 +30,7 @@ sudo apt-get install libbsc-dev
 Then add this line to your application's Gemfile:
 
 ```ruby
-gem 'ffi-bsc'
+gem 'compress-bsc'
 ```
 
 And then execute:
@@ -42,7 +42,7 @@ bundle install
 Or install it yourself as:
 
 ```bash
-gem install ffi-bsc
+gem install compress-bsc
 ```
 
 ## Usage
@@ -50,7 +50,7 @@ gem install ffi-bsc
 ### Simple API
 
 ```ruby
-require 'ffi_bsc'
+require 'compress_bsc'
 
 # Initialize the library
 bsc = Compress::BSC.new
@@ -68,7 +68,7 @@ puts decompressed == original # => true
 ### Object-Oriented API
 
 ```ruby
-require 'ffi_bsc'
+require 'compress_bsc'
 
 bsc = Compress::BSC.new
 
@@ -209,7 +209,7 @@ bundle exec rspec
 To run a specific test:
 
 ```bash
-bundle exec rspec spec/ffi_bsc/compressor_spec.rb
+bundle exec rspec spec/compressor_spec.rb
 ```
 
 ## Contributing

@@ -1,9 +1,9 @@
 require 'ffi'
-require_relative 'ffi_bsc/version'
-require_relative 'ffi_bsc/library'
-require_relative 'ffi_bsc/compressor'
-require_relative 'ffi_bsc/decompressor'
-require_relative 'ffi_bsc/error'
+require_relative 'compress_bsc/version'
+require_relative 'compress_bsc/library'
+require_relative 'compress_bsc/compressor'
+require_relative 'compress_bsc/decompressor'
+require_relative 'compress_bsc/error'
 
 module Compress
   class BSC

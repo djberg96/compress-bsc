@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require_relative '../lib/ffi_bsc'
+require_relative '../lib/compress_bsc'
 require 'optparse'
 
 class BSCCli

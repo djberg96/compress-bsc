@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 
-require_relative '../lib/ffi_bsc'
+require_relative '../lib/compress_bsc'
 
-# Example usage of FFI-BSC
+# Example usage of compress-bsc
 def main
-  puts "FFI-BSC Example Usage"
+  puts "compress-bsc Example Usage"
   puts "=" * 40
 
   begin

@@ -1,17 +1,17 @@
-require_relative 'lib/ffi_bsc/version'
+require_relative 'lib/compress_bsc/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "ffi-bsc"
+  spec.name          = "compress-bsc"
   spec.version       = Compress::BSC::VERSION
   spec.authors       = ["Ruby Developer"]
   spec.email         = ["dev@example.com"]
 
   spec.summary       = "Ruby FFI bindings for libbsc (Block Sorting Compression Library)"
   spec.description   = "A Ruby interface to the libbsc high-performance block-sorting compression library using FFI"
-  spec.homepage      = "https://github.com/example/ffi-bsc"
+  spec.homepage      = "https://github.com/djberg96/compress-bsc"
   spec.license       = "Apache-2.0"
 
-  spec.files         = Dir["lib/**/*", "bin/**/*", "examples/**/*", "spec/**/*", "README.md", "LICENSE", "Gemfile", "Rakefile", "ffi-bsc.gemspec", "CHANGELOG.md"]
+  spec.files         = Dir["lib/**/*", "bin/**/*", "examples/**/*", "spec/**/*", "README.md", "LICENSE", "Gemfile", "Rakefile", "compress-bsc.gemspec", "CHANGELOG.md"]
   spec.bindir        = "bin"
   spec.executables   = ["bsc_cli"]
   spec.require_paths = ["lib"]

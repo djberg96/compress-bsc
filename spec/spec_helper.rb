@@ -1,4 +1,4 @@
-require 'ffi_bsc'
+require_relative '../lib/compress_bsc'
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
